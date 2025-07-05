@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultimate Party Challenge</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            background: linear-gradient(45deg, #ff6b6b, #ffd93d, #6bcf7f, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: rainbow 3s ease-in-out infinite;
+        }
+
+        @keyframes rainbow {
+            0%, 100% { filter: hue-rotate(0deg); }
+            50% { filter: hue-rotate(180deg); }
+        }
+
+        .game-info {
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .challenge-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 1rem 0;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            transition: transform 0.3s ease;
+        }
+
+        .challenge-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .challenge-text {
+            font-size: 1.5rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .challenge-type {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+            border: none;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0.5rem;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.6);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #4ecdc4, #44a08d);
+            box-shadow: 0 4px 15px rgba(78, 205, 196, 0.4);
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 6px 20px rgba(78, 205, 196, 0.6);
+        }
+
+        .setup-screen {
+            display: block;
+        }
+
+        .game-screen {
+            display: none;
+        }
+
+        .player-input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 0.8rem;
+            margin: 0.5rem;
+            color: white;
+            font-size: 1rem;
+            width: 200px;
+        }
+
+        .player-input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .player-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 1rem 0;
+        }
+
+        .player-tag {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            margin: 0.3rem;
+            font-size: 0.9rem;
+        }
+
+        .timer {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #ffd93d;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            margin: 1rem 0;
+        }
+
+        .scoring {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 1rem;
+            margin: 1rem 0;
+        }
+
+        .score-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .score-item:last-child {
+            border-bottom: none;
+        }
+
+        .confetti {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(-100vh) rotate(0deg); }
+            100% { transform: translateY(100vh) rotate(360deg); }
+        }
+
+        .confetti-piece {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            animation: fall 3s linear infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🎉 Ultimate Party Challenge 🎉</h1>
+        
+        <div id="setupScreen" class="setup-screen">
+            <div class="game-info">
+                <h2>Welcome to the Ultimate Party Game!</h2>
+                <p>Get ready for hilarious challenges, dares, and fun activities with your friends!</p>
+            </div>
+            
+            <div>
+                <h3>Add Players</h3>
+                <input type="text" id="playerInput" class="player-input" placeholder="Enter player name" maxlength="15">
+                <button class="btn btn-secondary" onclick="addPlayer()">Add Player</button>
+                <div id="playerList" class="player-list"></div>
+            </div>
+            
+            <button class="btn" onclick="startGame()" style="margin-top: 2rem;">Start Game!</button>
+        </div>
+
+        <div id="gameScreen" class="game-screen">
+            <div class="game-info">
+                <div id="currentPlayer" style="font-size: 1.3rem; font-weight: bold;"></div>
+                <div id="timer" class="timer" style="display: none;"></div>
+            </div>
+            
+            <div id="challengeCard" class="challenge-card">
+                <div id="challengeType" class="challenge-type"></div>
+                <div id="challengeText" class="challenge-text"></div>
+            </div>
+            
+            <div>
+                <button class="btn" onclick="nextChallenge()">Next Challenge</button>
+                <button class="btn btn-secondary" onclick="startTimer()">Start Timer</button>
+                <button class="btn" onclick="showScores()" style="background: linear-gradient(45deg, #ffd93d, #ffb74d);">Show Scores</button>
+            </div>
+        </div>
+
+        <div id="scoreScreen" class="game-screen">
+            <h2>🏆 Leaderboard 🏆</h2>
+            <div id="scoring" class="scoring"></div>
+            <button class="btn" onclick="backToGame()">Back to Game</button>
+            <button class="btn btn-secondary" onclick="resetGame()">New Game</button>
+        </div>
+    </div>
+
+    <div id="confetti" class="confetti"></div>
+
+    <script>
+        let players = [];
+        let currentPlayerIndex = 0;
+        let scores = {};
+        let timerInterval;
+        let timeLeft = 30;
+
+        const challenges = [
+            {type: "Action", text: "Do 10 jumping jacks while singing the alphabet!"},
+            {type: "Dare", text: "Text your crush or ask someone in the room to be your valentine!"},
+            {type: "Creative", text: "Draw a self-portrait with your non-dominant hand in 60 seconds!"},
+            {type: "Silly", text: "Speak in a funny accent for the next 3 rounds!"},
+            {type: "Dance", text: "Create a dance move and teach it to everyone!"},
+            {type: "Trivia", text: "Name 5 movies that start with the letter 'S' in 30 seconds!"},
+            {type: "Impression", text: "Do your best impression of a famous person!"},
+            {type: "Challenge", text: "Hold a plank position for 1 minute!"},
+            {type: "Funny", text: "Tell a joke that makes at least one person laugh!"},
+            {type: "Memory", text: "Recite the alphabet backwards!"},
+            {type: "Acting", text: "Act out being stuck in an invisible box!"},
+            {type: "Sing", text: "Sing 'Happy Birthday' in the style of an opera singer!"},
+            {type: "Balance", text: "Stand on one foot for 30 seconds while patting your head!"},
+            {type: "Rhyme", text: "Make up a poem about pizza in 1 minute!"},
+            {type: "Mimic", text: "Imitate everyone in the room for 10 seconds each!"},
+            {type: "Speed", text: "Say 'Red leather, yellow leather' 10 times fast!"},
+            {type: "Silly", text: "Walk around the room like you're on the moon!"},
+            {type: "Creative", text: "Create a superhero name and power for yourself!"},
+            {type: "Action", text: "Do 5 cartwheels or somersaults!"},
+            {type: "Funny", text: "Make the funniest face you can for 10 seconds!"},
+            {type: "Challenge", text: "Stack 10 items from around the room!"},
+            {type: "Acting", text: "Pretend to be a robot for 2 minutes!"},
+            {type: "Dare", text: "Let someone style your hair however they want!"},
+            {type: "Memory", text: "List all the colors you can see in the room!"},
+            {type: "Sing", text: "Make up a song about your favorite food!"}
+        ];
+
+        function addPlayer() {
+            const input = document.getElementById('playerInput');
+            const name = input.value.trim();
+            
+            if (name && !players.includes(name)) {
+                players.push(name);
+                scores[name] = 0;
+                updatePlayerList();
+                input.value = '';
+            }
+        }
+
+        function updatePlayerList() {
+            const list = document.getElementById('playerList');
+            list.innerHTML = players.map(player => 
+                `<div class="player-tag">${player}</div>`
+            ).join('');
+        }
+
+        function startGame() {
+            if (players.length < 2) {
+                alert('Add at least 2 players to start!');
+                return;
+            }
+            
+            document.getElementById('setupScreen').style.display = 'none';
+            document.getElementById('gameScreen').style.display = 'block';
+            nextChallenge();
+        }
+
+        function nextChallenge() {
+            const challenge = challenges[Math.floor(Math.random() * challenges.length)];
+            const currentPlayer = players[currentPlayerIndex];
+            
+            document.getElementById('currentPlayer').textContent = `${currentPlayer}'s Turn`;
+            document.getElementById('challengeType').textContent = challenge.type;
+            document.getElementById('challengeText').textContent = challenge.text;
+            
+            document.getElementById('timer').style.display = 'none';
+            clearInterval(timerInterval);
+            
+            currentPlayerIndex = (currentPlayerIndex + 1) % players.length;
+        }
+
+        function startTimer() {
+            timeLeft = 30;
+            document.getElementById('timer').style.display = 'block';
+            
+            timerInterval = setInterval(() => {
+                document.getElementById('timer').textContent = timeLeft;
+                timeLeft--;
+                
+                if (timeLeft < 0) {
+                    clearInterval(timerInterval);
+                    document.getElementById('timer').textContent = "Time's Up!";
+                    setTimeout(() => {
+                        document.getElementById('timer').style.display = 'none';
+                    }, 2000);
+                }
+            }, 1000);
+        }
+
+        function showScores() {
+            document.getElementById('gameScreen').style.display = 'none';
+            document.getElementById('scoreScreen').style.display = 'block';
+            
+            const scoring = document.getElementById('scoring');
+            const sortedPlayers = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+            
+            scoring.innerHTML = sortedPlayers.map((player, index) => 
+                `<div class="score-item">
+                    <span>${index + 1}. ${player[0]}</span>
+                    <span>${player[1]} points</span>
+                </div>`
+            ).join('');
+            
+            if (sortedPlayers.length > 0) {
+                createConfetti();
+            }
+        }
+
+        function backToGame() {
+            document.getElementById('scoreScreen').style.display = 'none';
+            document.getElementById('gameScreen').style.display = 'block';
+        }
+
+        function resetGame() {
+            players = [];
+            scores = {};
+            currentPlayerIndex = 0;
+            document.getElementById('scoreScreen').style.display = 'none';
+            document.getElementById('setupScreen').style.display = 'block';
+            document.getElementById('playerList').innerHTML = '';
+            clearInterval(timerInterval);
+        }
+
+        function createConfetti() {
+            const confetti = document.getElementById('confetti');
+            confetti.innerHTML = '';
+            
+            for (let i = 0; i < 100; i++) {
+                const piece = document.createElement('div');
+                piece.className = 'confetti-piece';
+                piece.style.left = Math.random() * 100 + '%';
+                piece.style.backgroundColor = ['#ff6b6b', '#ffd93d', '#6bcf7f', '#4ecdc4', '#ff8e8e'][Math.floor(Math.random() * 5)];
+                piece.style.animationDelay = Math.random() * 3 + 's';
+                piece.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                confetti.appendChild(piece);
+            }
+            
+            setTimeout(() => {
+                confetti.innerHTML = '';
+            }, 5000);
+        }
+
+        // Allow Enter key to add players
+        document.getElementById('playerInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addPlayer();
+            }
+        });
+    </script>
+</body>
+</html>
